@@ -7,7 +7,6 @@ import httpx
 from dotenv import load_dotenv
 from models.epg_event import EPGEvent
 from models.channel import Channel
-from services.tvheadend_auth import get_tvh_auth
 from services.tvheadend_config_service import (
     TVHeadendConfigService,
 )
@@ -181,9 +180,16 @@ class TVHeadendChannelService:
     ) -> list[EPGEvent]:
         now = int(time.time())
 
+        config = self.config_service.load()
+
+        if not config.url:
+            raise RuntimeError(
+                "TVHeadend ist noch nicht konfiguriert."
+            )
+
         async with httpx.AsyncClient(
-            base_url=self.base_url,
-            auth=self.auth,
+            base_url=config.url.rstrip("/"),
+            auth=config.auth,
             timeout=self.timeout,
         ) as client:
             response = await client.get(

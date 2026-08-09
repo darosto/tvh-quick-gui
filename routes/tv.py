@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
-from services.tvheadend_auth import get_tvh_auth
 from services.tvheadend_channel_service import (
     TVHeadendChannelService,
 )
