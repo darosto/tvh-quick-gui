@@ -29,15 +29,15 @@ A lightweight, blazing-fast modern Web UI and Player for Tvheadend <br> (FastAPI
 <table border="0">
   <tr>
     <td><img src="docs/images/dashboard.png" width="45%" alt="" /></td>
-    <td><img src="docs/images/settings.png" width="45&" alt="" /></td>
+    <td><img src="docs/images/settings.png" width="45%" alt="" /></td>
   </tr>
     <tr>
     <td><img src="docs/images/tv1.png" width="45%" alt="" /></td>
-    <td><img src="docs/images/tv2.png" width="45&" alt="" /></td>
+    <td><img src="docs/images/tv2.png" width="45%" alt="" /></td>
   </tr>
       <tr>
     <td><img src="docs/images/guide.png" width="45%" alt="" /></td>
-    <td><img src="docs/images/" width="45&" alt="" /></td>
+    <td><img src="docs/images/" width="45%" alt="" /></td>
   </tr>
 </table>
 
