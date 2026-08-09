@@ -20,6 +20,14 @@ export class TVPage extends Page {
         this.channelInfo = null;
         this.currentChannel = null;
         this.unsubscribers = [];
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+
+        this.handleTouchStart =
+            this.handleTouchStart.bind(this);
+
+        this.handleTouchEnd =
+            this.handleTouchEnd.bind(this);
         this.handleChannelChange =
             this.handleChannelChange.bind(this);
 
@@ -66,6 +74,20 @@ export class TVPage extends Page {
             )
         );
 
+        this.root = document.querySelector("#tv");
+
+        this.root?.addEventListener(
+            "touchstart",
+            this.handleTouchStart,
+            { passive: true }
+        );
+
+        this.root?.addEventListener(
+            "touchend",
+            this.handleTouchEnd,
+            { passive: true }
+        );
+
         this.channelList = new ChannelList("#channel-list");
         this.channelList.initialize();
 
@@ -95,6 +117,75 @@ export class TVPage extends Page {
         this.channelList?.destroy();
         this.osd?.destroy();
         navigationController.clearTarget(this);
+        this.root?.removeEventListener(
+            "touchstart",
+            this.handleTouchStart
+        );
+
+        this.root?.removeEventListener(
+            "touchend",
+            this.handleTouchEnd
+        );
+    }
+
+    handleTouchStart(event) {
+        const touch = event.changedTouches[0];
+
+        this.touchStartX = touch.clientX;
+        this.touchStartY = touch.clientY;
+    }
+
+    handleTouchEnd(event) {
+        const touch = event.changedTouches[0];
+
+        const deltaX =
+            touch.clientX - this.touchStartX;
+
+        const deltaY =
+            touch.clientY - this.touchStartY;
+
+        const threshold = 40;
+
+        // kein Swipe -> hier nichts machen
+        if (
+            Math.abs(deltaX) < threshold &&
+            Math.abs(deltaY) < threshold
+        ) {
+            return;
+        }
+
+        // horizontal
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX > 0) {
+                eventBus.emit(
+                    Events.CHANNEL_LIST_SHOW
+                );
+            }
+
+            return;
+        }
+
+        // vertikal nur bei sichtbarer Senderliste
+        if (!this.channelList?.isVisible()) {
+            return;
+        }
+
+        if (deltaY < 0) {
+            navigationController.moveDown();
+        } else {
+            navigationController.moveUp();
+        }
+    }
+
+    handleVideoClick() {
+        if (!this.currentChannel) {
+            return;
+        }
+
+        eventBus.emit(
+            Events.OSD_SHOW,
+            this.currentChannel
+        );
     }
 
     handleChannelChange(channel) {
