@@ -1,0 +1,145 @@
+{% block content %}
+
+<section class="card settings-panel">
+
+    <h1>TVHeadend Setup</h1>
+
+    {% if saved %}
+        <div class="settings-message">
+            Einstellungen gespeichert.
+        </div>
+    {% endif %}
+
+    <form
+        method="post"
+        action="/settings"
+        class="settings-form"
+    >
+
+        <label>
+            TVHeadend URL <br>
+
+            <input class="input-bg"
+                type="url"
+                name="url"
+                value="{{ config.url }}"
+                placeholder="http://192.168.1.100:9981"
+                required
+            >
+        </label>
+
+        <label>
+            User
+
+            <input class="input-bg"
+                type="text"
+                name="username"
+                value="{{ config.username }}"
+                autocomplete="username"
+            >
+        </label>
+
+        <label>
+            Passwort
+
+            <input class="input-bg"
+                type="password"
+                name="password"
+                value=""
+                autocomplete="current-password"
+                placeholder="{% if config.password %}Passwort gespeichert{% else %}Optional{% endif %}"
+            >
+        </label>
+
+        <div class="settings-actions">
+
+            <button class="form-bt"
+                type="submit"
+                formaction="/settings/test"
+                formmethod="post"
+            >
+                Connect
+            </button>
+
+            <button class="form-bt"
+                type="submit"
+                formaction="/settings"
+                formmethod="post"
+            >
+                Save
+            </button>
+
+        </div>
+
+    </form>
+
+    {% if test_result %}
+
+        <div class="settings-test-result">
+
+            <h2>
+                {% if test_result.success %}
+                    Connection successful
+                {% else %}
+                    Connection failed
+                {% endif %}
+            </h2>
+
+            <p>
+                Server:
+                {% if test_result.server %}
+                    ✓ {{ test_result.server_name }}
+                    ({{ test_result.version }})
+                {% else %}
+                    ✗
+                {% endif %}
+            </p>
+
+            <p>
+                Channels:
+                {% if test_result.channels %}
+                    ✓ {{ test_result.channel_count }}
+                {% else %}
+                    ✗
+                {% endif %}
+            </p>
+
+            <p>
+                EPG:
+                {% if test_result.epg %}
+                    ✓ {{ test_result.epg_count }} Events
+                {% else %}
+                    ✗
+                {% endif %}
+            </p>
+
+            <p>
+                Stream:
+                {% if test_result.stream %}
+                    ✓ Stream verfügbar
+                {% else %}
+                    ✗ {{ test_result.stream_message }}
+                {% endif %}
+            </p>
+
+            <p>
+                DVR:
+
+                {% if test_result.dvr is sameas true %}
+                    ✓ {{ test_result.dvr_count }} Recordings
+
+                {% elif test_result.dvr is none %}
+                    – {{ test_result.dvr_message }}
+
+                {% else %}
+                    ✗ {{ test_result.dvr_message }}
+                {% endif %}
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

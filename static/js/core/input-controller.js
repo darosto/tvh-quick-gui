@@ -37,6 +37,9 @@ class InputController {
     }
 
     handleKeyDown(event) {
+        if (this.isEditableTarget(event.target)) {
+            return;
+        }
         const action = this.resolveAction(event);
 
         if (!action) {
@@ -47,6 +50,19 @@ class InputController {
         event.stopPropagation();
 
         action();
+    }
+
+    isEditableTarget(target) {
+    if (!(target instanceof HTMLElement)) {
+        return false;
+    }
+
+    return (
+        target.matches(
+            "input, textarea, select"
+        ) ||
+        target.isContentEditable
+      );
     }
 
     resolveAction(event) {

@@ -1,5 +1,4 @@
 import os
-
 import httpx
 from dotenv import load_dotenv
 from collections.abc import AsyncIterator
@@ -11,15 +10,16 @@ from services.tvheadend_auth import get_tvh_auth
 from services.tvheadend_channel_service import (
     TVHeadendChannelService,
 )
-
-
+from services.tvheadend_config_service import (
+    TVHeadendConfigService,
+)
 load_dotenv()
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 channel_service = TVHeadendChannelService()
-
+config_service = TVHeadendConfigService()
 
 @router.get("/tv", response_class=HTMLResponse)
 async def tv(request: Request):
@@ -53,8 +53,15 @@ async def tvh_image(image_path: str):
     if not image_path.startswith("imagecache/"):
         raise HTTPException(status_code=404)
 
-    base_url = os.environ["TVH_URL"].rstrip("/")
-    auth = get_tvh_auth()
+    config = config_service.load()
+
+    if not config.url:
+        raise RuntimeError(
+            "TVHeadend ist noch nicht konfiguriert."
+        )
+
+    base_url = config.url.rstrip("/")
+    auth = config.auth
 
     try:
         async with httpx.AsyncClient(
@@ -89,12 +96,22 @@ async def tvh_stream(channel_uuid: str):
     if not channel_uuid or not channel_uuid.isalnum():
         raise HTTPException(status_code=400, detail="Ungültige Sender-UUID")
 
-    base_url = os.environ["TVH_URL"].rstrip("/")
-    auth = get_tvh_auth()
-    profile = os.getenv("TVH_STREAM_PROFILE", "").strip()
+    config = config_service.load()
+
+    if not config.url:
+        raise HTTPException(
+            status_code=500,
+            detail="TVHeadend ist nicht konfiguriert.",
+        )
+
+    base_url = config.url.rstrip("/")
+    auth = config.auth
 
     params = {}
-
+    profile = os.getenv(
+        "TVH_STREAM_PROFILE",
+        "",
+    ).strip()
     if profile:
         params["profile"] = profile
 
@@ -123,7 +140,7 @@ async def tvh_stream(channel_uuid: str):
 
         raise HTTPException(
             status_code=502,
-            detail="TVHeadend-Stream konnte nicht geöffnet werden.",
+            detail="TVHeadend-Stream konnte nicht geöffnet werden. Prüfe Streaming-profile",
         ) from error
 
     async def stream_body() -> AsyncIterator[bytes]:

@@ -9,6 +9,13 @@
         {% include "components/topbar.html" %}
 
         <main class="dashboard">
+
+            {% if view == "settings" %}
+
+            {% include "components/settings-panel.html" %}
+
+            {% else %}
+
             <div class="cards">
 
                 {% set title = "Live TV" %}
@@ -40,10 +47,13 @@
                 {% set row = 1 %}
                 {% set col = 2 %}
                 {% set action = "/settings" %}
-                {% set disabled = true %}
+                {% set disabled = false %}
                 {% include "components/card.html" %}
 
             </div>
+
+            {% endif %}
+
         </main>
     </div>
 </div>

@@ -58,6 +58,13 @@ export class OSD extends Widget {
         this.logo?.addEventListener("error", () => {
             this.logo.hidden = true;
         });
+        this.fullscreenButton =
+        this.root.querySelector("#osd-fullscreen");
+
+        this.fullscreenButton?.addEventListener(
+           "click",
+           () => this.toggleFullscreen()
+        );
     }
     destroy() {
         this.unsubscribe?.();
@@ -185,4 +192,19 @@ show(payload) {
 
         return this.clampProgress(progress);
     }
+async toggleFullscreen() {
+    try {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+        } else {
+            await document.exitFullscreen();
+        }
+    } catch (error) {
+        console.error(
+            "Fullscreen konnte nicht umgeschaltet werden:",
+            error
+        );
+    }
+}
+
 }

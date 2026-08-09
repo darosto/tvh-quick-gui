@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import time
 from typing import Any
 
@@ -9,15 +8,17 @@ from dotenv import load_dotenv
 from models.epg_event import EPGEvent
 from models.channel import Channel
 from services.tvheadend_auth import get_tvh_auth
+from services.tvheadend_config_service import (
+    TVHeadendConfigService,
+)
 
 
 load_dotenv()
-
+config_service = TVHeadendConfigService()
 
 class TVHeadendChannelService:
     def __init__(self) -> None:
-        self.base_url = os.environ["TVH_URL"].rstrip("/")
-        self.auth = get_tvh_auth()
+        self.config_service = TVHeadendConfigService()
 
         self.timeout = httpx.Timeout(10.0)
         self._cache: list[Channel] = []
@@ -25,6 +26,13 @@ class TVHeadendChannelService:
         self._cache_ttl = 20.0
 
     async def get_channels(self) -> list[Channel]:
+        config = self.config_service.load()
+
+        if not config.url:
+            raise RuntimeError(
+                "TVHeadend ist noch nicht konfiguriert."
+            )
+
         if (
             self._cache
             and time.monotonic() - self._cache_timestamp < self._cache_ttl
@@ -32,8 +40,8 @@ class TVHeadendChannelService:
             return self._cache
 
         async with httpx.AsyncClient(
-            base_url=self.base_url,
-            auth=self.auth,
+            base_url=config.url.rstrip("/"),
+            auth=config.auth,
             timeout=self.timeout,
         ) as client:
             channel_response = await client.get(

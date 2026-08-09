@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Any
 
 import httpx
 from dotenv import load_dotenv
-from services.tvheadend_auth import get_tvh_auth
+from services.tvheadend_config_service import (
+    TVHeadendConfigService,
+)
 
 load_dotenv()
 
@@ -31,8 +32,7 @@ class GuideEvent:
 
 class TVHeadendEPGService:
     def __init__(self) -> None:
-        self.base_url = os.environ["TVH_URL"].rstrip("/")
-        self.auth = get_tvh_auth()
+        self.config_service = TVHeadendConfigService()
 
         self.timeout = httpx.Timeout(
             connect=10.0,
@@ -50,6 +50,12 @@ class TVHeadendEPGService:
         """
         Lädt EPG-Einträge für den angegebenen Zeitraum.
         """
+        config = self.config_service.load()
+
+        if not config.url:
+            raise RuntimeError(
+                "TVHeadend ist noch nicht konfiguriert."
+            )
 
         if stop_timestamp <= start_timestamp:
             raise ValueError(
@@ -57,8 +63,8 @@ class TVHeadendEPGService:
             )
 
         async with httpx.AsyncClient(
-            base_url=self.base_url,
-            auth=self.auth,
+            base_url=config.url.rstrip("/"),
+            auth=config.auth,
             timeout=self.timeout,
         ) as client:
             response = await client.get(
@@ -152,7 +158,7 @@ class TVHeadendEPGService:
 
     def build_icon_url(self, icon_path: str) -> str:
         """
-        Erzeugt eine MoonTV-kompatible Logo-URL.
+        Erzeugt eine tvh-quivk-gui Logo-URL.
         """
 
         icon_path = icon_path.strip()
