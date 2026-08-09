@@ -50,15 +50,9 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
-nano .env 
-    and add following:
+cat <<< "TVH_STREAM_PROFILE=webtv-h264-aac-matroska" > .env
 
-TVH_URL=http://{tvheadend-ip}:9981
-TVH_USERNAME=none or user
-TVH_PASSWORD=none or password
-TVH_STREAM_PROFILE=webtv-h264-aac-matroska
-
-uvicorn app:app --reload
+uvicorn app:app --reload --host 0.0.0.0 --port 8088
 ```
 
 ---
