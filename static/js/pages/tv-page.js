@@ -317,17 +317,11 @@ export class TVPage extends Page {
     }
 
     activate() {
-        const channel = this.channelList?.getSelectedChannel();
-
-        if (!channel) {
+        if (!this.channelList?.isVisible()) {
             return;
         }
 
-        eventBus.emit(
-            Events.CHANNEL_ACTIVATE,
-            channel
-        );
+        this.channelList.activateSelected();
     }
 
 }
-
