@@ -53,7 +53,7 @@
 
 | Datei | Aufgabe |
 |-------|----------|
-| webos.css | Komplettes MoonTV-Design |
+| webos.css | Komplettes tvh-quick-gui Design |
 
 ---
 
@@ -63,7 +63,7 @@
 
 | Datei | Aufgabe |
 |-------|----------|
-| application.js | Startet MoonTV |
+| application.js | Startet tvh-quick-gui |
 | event-bus.js | Kommunikation zwischen Widgets |
 | events.js | Zentrale Event-Definitionen |
 | page.js | Basisklasse für Seiten |
